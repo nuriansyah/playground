@@ -33,10 +33,29 @@ func (api *API) AuthMiddleWare(next http.Handler) http.Handler {
 		//       3. return bad request ketika field token tidak ada
 
 		// TODO: answer here
+		token, err := r.Cookie("token")
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			encoder.Encode(AuthErrorResponse{Error: err.Error()})
+			return
+		}
 
 		// Task: Ambil value dari cookie token
 
 		// TODO: answer here
+		claims := &Claims{}
+		_, err = jwt.ParseWithClaims(token.Value, claims, func(token *jwt.Token) (interface{}, error) {
+			return jwtKey, nil
+		})
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			encoder.Encode(AuthErrorResponse{Error: err.Error()})
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), "username", claims.Username)
+		next.ServeHTTP(w, r.WithContext(ctx))
+		// next.ServeHTTP(w, r)
 
 		// Task: Deklarasi variable claim
 
@@ -51,6 +70,6 @@ func (api *API) AuthMiddleWare(next http.Handler) http.Handler {
 
 		// Task: Validasi
 
-		return next.ServeHTTP(w, r) // TODO: replace this
+		// return next.ServeHTTP(w, r) // TODO: replace this
 	})
 }

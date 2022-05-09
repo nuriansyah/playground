@@ -47,22 +47,46 @@ func (api *API) login(w http.ResponseWriter, req *http.Request) {
 
 	// TODO: answer here
 
+	expiryTime := time.Now().Add(time.Millisecond * 100000).Unix()
+	claims := &Claims{
+		StandardClaims: jwt.StandardClaims{
+			Issuer:    "golang-jwt",
+			ExpiresAt: expiryTime,
+		},
+		Username: username,
+	}
+
 	// Task: Buat token menggunakan encoded claim dengan salah satu algoritma yang dipakai
 
 	// TODO: answer here
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// Task: 1. Buat jwt string dari token yang sudah dibuat menggunakan JWT key yang telah dideklarasikan
 	//       2. return internal error ketika ada kesalahan ketika pembuatan JWT string
 
 	// TODO: answer here
+	jwtString, err := token.SignedString(jwtKey)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		encoder.Encode(AuthErrorResponse{Error: err.Error()})
+		return
+	}
 
 	// Task: Set token string kedalam cookie response
 
 	// TODO: answer here
+	cookie := http.Cookie{
+		Name:    "token",
+		Value:   jwtString,
+		Expires: time.Unix(expiryTime, 0),
+	}
+	http.SetCookie(w, &cookie)
 
 	// Task: Return response berupa username dan token JWT yang sudah login
-
-	json.NewEncoder(w).Encode(LoginSuccessResponse{Username: "", Token: ""}) // TODO: replace this
+	encoder.Encode(LoginSuccessResponse{
+		Username: *res,
+	})
+	// json.NewEncoder(w).Encode(LoginSuccessResponse{Username: "", Token: ""}) // TODO: replace this
 }
 
 func (api *API) logout(w http.ResponseWriter, req *http.Request) {
@@ -76,5 +100,11 @@ func (api *API) logout(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	encoder.Encode(AuthErrorResponse{Error: ""}) // TODO: replace this
+	cookie := http.Cookie{
+		Name:    "token",
+		Value:   "",
+		Expires: time.Unix(0, 0),
+	}
+	http.SetCookie(w, &cookie)
+
 }
