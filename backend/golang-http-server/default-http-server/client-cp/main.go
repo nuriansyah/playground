@@ -12,5 +12,14 @@ import (
 // Untuk date, gunakan format YYYY/MM/dd
 
 func main() {
-	// TODO: answer here
+	resp, err := http.Get("https://www.metaweather.com/api/location/44418/2022/05/09")
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(body))
 }

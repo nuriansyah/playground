@@ -10,6 +10,11 @@ import (
 
 // TODO: answer here
 
+type URL struct {
+	LongURL  string
+	ShortURL string
+}
+
 func GetRandomShortURL(longURL string) string {
 	s := fmt.Sprintf("%s%d", longURL, time.Now().Unix())
 	sum := sha256.Sum256([]byte(s))

@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	// TODO: answer here
+	"fmt"
 	"time"
 
 	vegeta "github.com/tsenart/vegeta/v12/lib"
@@ -23,7 +23,29 @@ type Movie struct {
 //ID sudah auto increment
 func addMovieTest(target string) *vegeta.Metrics {
 	metrics := &vegeta.Metrics{}
-	// TODO: answer here
+	result := make([]Movie, 0)
+	for i := 1; i <= 25; i++ {
+		movie := Movie{
+			ID:      i,
+			Episode: i,
+			Name:    fmt.Sprintf("Movie %d", i),
+		}
+		result = append(result, movie)
+	}
+	body, err := json.Marshal(result)
+	if err != nil {
+		panic(err)
+	}
+	targeter := vegeta.NewStaticTargeter(vegeta.Target{
+		Method: "POST",
+		URL:    target,
+		Body:   body,
+	})
+	metrics = vegetaAttack(targeter, 10, time.Second)
+
+	// fmt.Sprintf(`{"episode": %d, "name": "%s"}`, Movie.Episode, Movie.Name)
+	// json.Marshal(Movie)
+
 	return metrics
 }
 
@@ -32,14 +54,35 @@ func addMovieTest(target string) *vegeta.Metrics {
 //kita bisa menggunakannya untuk menentukan multiple target vegeta attack
 func getMovieTest(target string) *vegeta.Metrics {
 	metrics := &vegeta.Metrics{}
-	// TODO: answer here
+	for i := 1; i <= 25; i++ {
+		json.Marshal(Movie{
+			ID: i,
+		})
+	}
+	targeter := vegeta.NewStaticTargeter(vegeta.Target{
+		Method: "GET",
+		URL:    target,
+	})
+	metrics = vegetaAttack(targeter, 25, time.Second)
 	return metrics
 }
 
 //mendapatkan semua informasi movie
 func getMoviesTest(target string) *vegeta.Metrics {
 	metrics := &vegeta.Metrics{}
-	// TODO: answer here
+	for i := 1; i <= 25; i++ {
+		json.Marshal(Movie{
+			ID:      i,
+			Episode: i,
+			Name:    fmt.Sprintf("Movie %d", i),
+		})
+	}
+	targeter := vegeta.NewStaticTargeter(vegeta.Target{
+		Method: "GET",
+		URL:    target,
+	})
+	metrics = vegetaAttack(targeter, 20, time.Second)
+
 	return metrics
 }
 

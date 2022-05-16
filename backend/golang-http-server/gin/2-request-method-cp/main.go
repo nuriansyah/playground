@@ -13,7 +13,16 @@ var RequestMethodHandler = func(c *gin.Context) {
 }
 
 func GetGinRoute() *gin.Engine {
-	return &gin.Engine{} // TODO: replace this
+	router := gin.Default()
+	router.GET("/get", RequestMethodHandler)
+	router.POST("/post", RequestMethodHandler)
+	router.PUT("/put", RequestMethodHandler)
+	router.DELETE("/delete", RequestMethodHandler)
+	router.PATCH("/patch", RequestMethodHandler)
+	router.HEAD("/head", RequestMethodHandler)
+	router.OPTIONS("/options", RequestMethodHandler)
+
+	return router
 }
 
 func main() {

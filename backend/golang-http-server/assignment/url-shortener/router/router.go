@@ -6,5 +6,10 @@ import (
 )
 
 func SetupRouter(urlHandler handlers.URLHandler) *gin.Engine {
-	return &gin.Engine{} // TODO: replace this
+	r := gin.Default()
+	r.GET("/:id", urlHandler.Get)
+	r.POST("/", urlHandler.Create)
+	r.POST("/custom", urlHandler.CreateCustom)
+	r.GET("/pawgrammers", urlHandler.CreateCustom)
+	return r
 }

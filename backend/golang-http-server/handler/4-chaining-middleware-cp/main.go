@@ -20,13 +20,32 @@ func TimeHandler() http.HandlerFunc {
 }
 
 func RequestMethodGetMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}) // TODO: replace this
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "GET" {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+	}) // TODO: replace this
 }
 
 func AdminMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}) // TODO: replace this
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("role") != "ADMIN" {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+	}) // TODO: replace this
 }
 
 func main() {
-	// TODO: answer here
+	handler := TimeHandler()
+
+	server := http.Server{
+		Addr:    "localhost:8080",
+		Handler: handler,
+	}
+	err := server.ListenAndServe()
+	if err != nil {
+		panic(err)
+	}
 }

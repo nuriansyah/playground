@@ -15,7 +15,19 @@ var data []string
 var err error
 
 var handler http.HandlerFunc = func(w http.ResponseWriter, r *http.Request) {
-	// TODO: answer here
+	if r.Method != "GET" {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	if err != nil {
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+	if len(data) == 0 {
+		http.Error(w, "not found", http.StatusNotFound)
+	}
+	fmt.Fprintln(w, data)
+
 }
 
 func main() {

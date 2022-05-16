@@ -33,11 +33,34 @@ var data = map[int]User{
 }
 
 func ProfileHandler() func(c *gin.Context) {
-	return func(c *gin.Context) {} // TODO: replace this
+	return func(c *gin.Context) {
+		userID, err := strconv.Atoi(c.Param("user_id"))
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{
+				fmt.Sprint("data not found"): err,
+			})
+			return
+		}
+		user, ok := data[userID]
+		if !ok {
+			c.JSON(http.StatusNotFound, gin.H{
+				fmt.Sprint("data not found"): err,
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"name":    user.Name,
+			"country": user.Country,
+			"age":     user.Age,
+		})
+	} // TODO: replace this
+
 }
 
 func GetRouter() *gin.Engine {
-	return &gin.Engine{} // TODO: replace this
+	router := gin.Default()
+	router.GET("/user/:user_id", ProfileHandler())
+	return router
 }
 
 func main() {

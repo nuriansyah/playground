@@ -18,8 +18,9 @@ var quotes = []string{
 	"Nothing is impossible, the word itself says 'I'm possible'! ― Audrey Hepburn",
 }
 
-// TODO: answer here
+type QuotesHandler struct{}
 
 func (qh QuotesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// TODO: answer here
+	fmt.Fprintf(w, quotes[rand.Intn(len(quotes))])
+
 }

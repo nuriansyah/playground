@@ -19,7 +19,16 @@ spikeValue := 20
 
 func spikeTest(target string) *vegeta.Metrics {
 	metrics := &vegeta.Metrics{}
-	// TODO: answer here
+	duration := 4 * time.Second
+	frequency := 5
+	spikeValue := 20
+	rate := vegeta.Rate{Freq: frequency, Per: time.Second}
+	targeter := vegeta.NewStaticTargeter(vegeta.Target{
+		Method: "GET",
+		URL:    target,
+	})
+	metrics = vegetaAttackSpike(targeter, rate, duration, spikeValue)
+
 	return metrics
 }
 
@@ -32,7 +41,19 @@ func spikeTest(target string) *vegeta.Metrics {
 
 func vegetaAttackSpike(targeter vegeta.Targeter, rate vegeta.ConstantPacer, duration time.Duration, spikeValue int) *vegeta.Metrics {
 	var metrics vegeta.Metrics
-	// TODO: answer here
+
+	attacker := vegeta.NewAttacker()
+	normalRate := rate.Freq
+	for i := 1; i <= int(duration.Seconds()); i++ {
+		if i%2 == 0 {
+			rate.Freq = spikeValue
+		} else {
+			rate.Freq = normalRate
+		}
+	}
+	for res := range attacker.Attack(targeter, rate, duration, "Example") {
+		metrics.Add(res)
+	}
 	metrics.Close()
 	return &metrics
 }
