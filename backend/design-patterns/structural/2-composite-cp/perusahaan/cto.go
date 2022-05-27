@@ -11,5 +11,10 @@ func (c CTO) GetSalary() int {
 }
 
 func (c CTO) TotalDivisonSalary() int {
-	return 0 // TODO: replace this
+	fmt.Sprintf("Total Divison Salary CTO %s", c.GetSalary())
+	total := c.GetSalary()
+	for _, subordinate := range c.Subordinate {
+		total += subordinate.TotalDivisonSalary()
+	}
+	return total
 }

@@ -19,8 +19,12 @@ func TimeHandler() http.HandlerFunc {
 
 func SayHelloHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "Hello there")
-		fmt.Fprint(w, "Hello, Roger!")
+		name := r.URL.Query().Get("name")
+		if name == "" {
+			w.Write([]byte("Hello there"))
+			return
+		}
+		w.Write([]byte(fmt.Sprintf("Hello, %s!", name)))
 	} // TODO: replace this
 }
 
