@@ -34,14 +34,33 @@ func Migrate() (*sql.DB, error) {
 		panic(err)
 	}
 
-	sqlStmt := `CREATE TABLE ... ;` // TODO: replace this
+	sqlStmt := `CREATE TABLE IF NOT EXISTS rekap_1nf (
+		NoBon VARCHAR(10) PRIMARY KEY,
+		NamaBarang VARCHAR(10),
+		Harga INT,
+		Jumlah INTEGER,
+		Biaya INTEGER,
+		SubTotal INTEGER,
+		Discount INTEGER,
+		Total INTEGER,
+		Bayar INTEGER,
+		Kembalian INTEGER,
+		Kasir VARCHAR(10),
+		Tanggal DATE,
+		Waktu VARCHAR(10)
+		);`
 
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = db.Exec(`INSERT INTO ... VALUES ... ;`) // TODO: replace this
+	_, err = db.Exec(`
+	INSERT INTO
+	 rekap_1nf (NoBon, NamaBarang, Harga, Jumlah, Biaya, SubTotal, Discount, Total, Bayar, Kembalian, Kasir, Tanggal, Waktu)
+	VALUES
+	("00001", "Disket", 4500, 3, 13500, 13500, 0, 13500, 100000, 23000, "Rosi", "04-05-2022", "12:00:00")
+    ;`) // TODO: replace this
 
 	if err != nil {
 		panic(err)
@@ -57,7 +76,7 @@ func checkLatestId(id string) (int, error) {
 		panic(err)
 	}
 
-	sqlStmt := `SELECT ... FROM ... WHERE ... = ?;` // TODO: replace this
+	sqlStmt := `SELECT COUNT(*) FROM rekap_1nf WHERE NoBon = ?`
 
 	row := db.QueryRow(sqlStmt, id)
 	var latestId int

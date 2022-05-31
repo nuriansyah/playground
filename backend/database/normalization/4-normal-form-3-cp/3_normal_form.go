@@ -50,53 +50,99 @@ func Migrate() (*sql.DB, error) {
 		panic(err)
 	}
 
-	sqlStmt := ` ... ` // TODO: replace this
+	sqlStmt := `CREATE TABLE IF NOT EXISTS rekap_3nf (
+		NoBon INTEGER PRIMARY KEY,
+		Discount INTEGER,
+		Total INTEGER,
+		Bayar INTEGER,
+		Kembalian INTEGER,
+		KodeKasir VARCHAR(10),
+		Tanggal VARCHAR(10),
+		Waktu VARCHAR(10)
+	);` // TODO: replace this
 
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = db.Exec(` ... `) // TODO: replace this
+	_, err = db.Exec(`
+	INSERT INTO 
+	rekap_3nf (NoBon, Discount, Total, Bayar, Kembalian, KodeKasir, Tanggal, Waktu)
+	VALUES
+	(1, 0, 0, 0, 0, "Kasir1", "2020-01-01", "12:00:00"),
+	(2, 0, 0, 0, 0, "Kasir2", "2020-01-01", "12:00:00") 
+	  ;`) // TODO: replace this
 
 	if err != nil {
 		panic(err)
 	}
 
-	sqlStmt = ` ... ` // TODO: replace this
+	sqlStmt = `CREATE TABLE IF NOT EXISTS rekap_detail_3nf (
+		NoBon INTEGER,
+		KodeBarang VARCHAR(10),
+		Harga INTEGER,
+		Jumlah INTEGER,
+		FOREIGN KEY (NoBon) REFERENCES rekap_3nf(NoBon)
+	);` // TODO: replace this
 
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = db.Exec(` ... `) // TODO: replace this
+	_, err = db.Exec(`
+	INSERT INTO
+	rekap_detail_3nf (NoBon, KodeBarang, Harga, Jumlah)
+	VALUES
+	(1, "B001", 100, 1),
+	(1, "B002", 200, 2)
+	;`) // TODO: replace this
 
 	if err != nil {
 		panic(err)
 	}
 
-	sqlStmt = ` ... ` // TODO: replace this
+	sqlStmt = ` CREATE TABLE IF NOT EXISTS barang_3nf (
+		KodeBarang VARCHAR(10) PRIMARY KEY,
+		NamaBarang VARCHAR(50),
+		Harga INTEGER
+	);` // TODO: replace this
 
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = db.Exec(` ... `) // TODO: replace this
+	_, err = db.Exec(`
+	INSERT INTO
+	barang_3nf (KodeBarang, NamaBarang, Harga)
+	VALUES
+	("B001", "Buku", 100),
+	("B002", "Komputer", 200)
+	;`) // TODO: replace this
 
 	if err != nil {
 		panic(err)
 	}
 
-	sqlStmt = ` ... ` // TODO: replace this
+	sqlStmt = ` CREATE TABLE IF NOT EXISTS kasir_3nf (
+		KodeKasir VARCHAR(10) PRIMARY KEY,
+		NamaKasir VARCHAR(50)
+	);` // TODO: replace this
 
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = db.Exec(` ... `) // TODO: replace this
+	_, err = db.Exec(` 
+	INSERT INTO
+	kasir_3nf (KodeKasir, NamaKasir)
+	VALUES
+	("Kasir1", "Nama Kasir 1"),
+	("Kasir2", "Nama Kasir 2")
+	;`) // TODO: replace this
 
 	if err != nil {
 		panic(err)
@@ -112,7 +158,7 @@ func checkLatestNoBon(no_bon string) (int, error) {
 		panic(err)
 	}
 
-	sqlStmt := ` ...` // TODO: replace this
+	sqlStmt := `SELECT COUNT(*) FROM rekap_3nf WHERE NoBon = ?` // TODO: replace this
 
 	row := db.QueryRow(sqlStmt, no_bon)
 	var latestId int
@@ -131,7 +177,7 @@ func checkLatestNoBonDetail(no_bon_detail string) (int, error) {
 		panic(err)
 	}
 
-	sqlStmt := ` ...` // TODO: replace this
+	sqlStmt := `SELECT COUNT(*) FROM rekap_detail_3nf WHERE NoBon = ?` // TODO: replace this
 
 	row := db.QueryRow(sqlStmt, no_bon_detail)
 	var latestId int
@@ -150,7 +196,7 @@ func checkLatestNoBarang(kode_barang string) (int, error) {
 		panic(err)
 	}
 
-	sqlStmt := ` ...` // TODO: replace this
+	sqlStmt := `SELECT COUNT(*) FROM barang_3nf WHERE KodeBarang = ?` // TODO: replace this
 
 	row := db.QueryRow(sqlStmt, kode_barang)
 	var latestId int
@@ -169,7 +215,7 @@ func checkLatestNoKasir(kode_kasir string) (int, error) {
 		panic(err)
 	}
 
-	sqlStmt := ` ...` // TODO: replace this
+	sqlStmt := `SELECT COUNT(*) FROM kasir_3nf WHERE KodeKasir = ?` // TODO: replace this
 
 	row := db.QueryRow(sqlStmt, kode_kasir)
 	var latestId int

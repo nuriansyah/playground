@@ -36,14 +36,33 @@ func Migrate() (*sql.DB, error) {
 		panic(err)
 	}
 
-	sqlStmt := `CREATE TABLE ... ;` // TODO: replace this
+	sqlStmt := `CREATE TABLE IF NOT EXISTS unormal (
+		NoBon INTEGER PRIMARY KEY,
+		NamaBarang VARCHAR(10),
+		Harga INTEGER,
+		Jumlah INTEGER,
+		Biaya INTEGER,
+		SubTotal INTEGER,
+		Discount INTEGER,
+		Total INTEGER,
+		Bayar INTEGER,
+		Kembalian INTEGER,
+		Kasir VARCHAR(10),
+		Tanggal DATE,
+		Waktu VARCHAR(10)
+	);`
 
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = db.Exec(`INSERT INTO ... VALUES ... ;`) // TODO: replace this
+	_, err = db.Exec(`
+	INSERT INTO 
+	unormal (NoBon, NamaBarang, Harga, Jumlah, Biaya, SubTotal, Discount, Total, Bayar, Kembalian, Kasir, Tanggal, Waktu)
+	 VALUES 
+	 ("00001", "Disket", 4500, 3, 13500, 13500, 0, 0, 0, 0, "Rosi", "04-05-2022", "12:00:00")
+ 	 ;`) // TODO: replace this
 
 	if err != nil {
 		panic(err)
@@ -59,7 +78,7 @@ func checkLatestId(id int) (int, error) {
 		panic(err)
 	}
 
-	sqlStmt := `SELECT ... FROM ... WHERE ... = ?;` // TODO: replace this
+	sqlStmt := `SELECT NoBon FROM unormal ORDER BY NoBon DESC LIMIT 1;`
 
 	row := db.QueryRow(sqlStmt, id)
 	var latestId int
