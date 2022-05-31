@@ -1,7 +1,7 @@
 package main
 
 // pada tahap normalisai 1 (1NF), kita akan menyederhanakan bentuk unormal sesuai dengan kaidah bentuk normalisasi 1
-// dengan menghilangkan duplikasi kolom dari tabel yang sama
+// dengan memisahkan data rekap dengan nomor bon yang sama dari 1 row ke beberapa row
 
 import (
 	"database/sql"
@@ -27,7 +27,8 @@ type Rekap struct {
 }
 
 // Migrate digunakan untuk melakukan migrasi database dengan data yang dibutuhkan
-// Tugas: Replace tanda ... dengan Query yang tepat pada fungsi Migrate:
+// Tugas: Replace tanda ... dengan Query yang tepat pada fungsi Migrate
+// Buatlah tabel dengan nama rekap dan insert data seperti pada contoh di bagian bawah file ini
 func Migrate() (*sql.DB, error) {
 	db, err := sql.Open("sqlite3", "./normalize-cp.db")
 	if err != nil {
@@ -69,8 +70,9 @@ func Migrate() (*sql.DB, error) {
 	return db, nil
 }
 
-// Tugas: Replace tanda ... dengan Query yang tepat pada fungsi checkLatestId:
-func checkLatestId(id string) (int, error) {
+// Tugas: Replace tanda ... dengan Query yang tepat pada fungsi countByNoBon:
+// countByNoBon digunakan untuk menghitung jumlah data yang ada berdasarkan no_bon
+func countByNoBon(noBon string) (int, error) {
 	db, err := sql.Open("sqlite3", "./normalize-cp.db")
 	if err != nil {
 		panic(err)
@@ -78,14 +80,13 @@ func checkLatestId(id string) (int, error) {
 
 	sqlStmt := `SELECT COUNT(*) FROM rekap_1nf WHERE NoBon = ?`
 
-	row := db.QueryRow(sqlStmt, id)
-	var latestId int
-	err = row.Scan(&latestId)
+	row := db.QueryRow(sqlStmt, noBon)
+	var countBon int
+	err = row.Scan(&countBon)
 	if err != nil {
 		return 0, err
-	} else {
-		return 1, nil
 	}
+	return countBon, nil
 }
 
 // insert value hint
