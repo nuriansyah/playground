@@ -95,15 +95,41 @@ func Migrate() (*sql.DB, error) {
 		panic(err)
 	}
 
-	sqlStmt = `CREATE TABLE surrogate_table_cp ...` // TODO: replace this
+	sqlStmt = `CREATE TABLE surrogate_table_cp (
+		Id INTEGER PRIMARY KEY,
+		RegistrationNo VARCHAR(10),
+		Name VARCHAR(50),
+		Percentage Decimal,
+		Grade VARCHAR(10),
+		NationalRank INTEGER
 
+	)` // TODO: replace this
+	/* Id             int
+	RegistrationNo string
+	Name           string
+	Percentage     float64
+	Grade          string
+	NationalRank   int */
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
 		return nil, err
 	}
 
 	//Masukkan data dua sekolah sebelumnya ke table ini
-	_, err = db.Exec(`INSERT INTO surrogate_table_cp .... ;`) // TODO: replace this
+	_, err = db.Exec(`INSERT INTO 
+	surrogate_table_cp (RegistrationNo,Name,Percentage,Grade,NationalRank)
+		VALUES
+		("sekolah1", "SMA Negeri 1", 0.5, "A", 457),
+		("sekolah2", "SMA Negeri 2", 0.5, "A", 124),
+		("sekolah3", "SMA Negeri 3", 0.5, "B", 789),
+		("sekolah4", "SMA Negeri 4", 0.5, "B", 987),
+		("sekolah5", "SMA Negeri 5", 0.5, "B", 1024),
+		("1000", "SMA Negeri 6", 0.5,"",0),
+		("2000", "SMA Negeri 7", 0.5,"",0),
+		("3000", "SMA Negeri 8", 0.5,"",0),
+		("4000", "SMA Negeri 9", 0.5,"",0),
+		("5000", "SMA Negeri 10", 0.5,"",0)
+	;`) // TODO: replace this
 
 	if err != nil {
 		panic(err)
