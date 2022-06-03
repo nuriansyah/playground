@@ -21,7 +21,17 @@ func (c *CartItemRepository) FetchCartItems() ([]CartItem, error) {
 	//TODO: add sql statement here
 	//HINT: join table cart_items and products
 
-	sqlStatement = `SELECT * FROM cart_items JOIN products ON cart_items.product_id = products.id`
+	sqlStatement = `
+	SELECT
+		cart_items.id,
+		cart_items.product_id,
+		cart_items.quantity,
+		products.product_name,
+		products.price
+	FROM cart_items
+	JOIN products
+	ON cart_items.product_id = products.id
+	`
 
 	rows, err := c.db.Query(sqlStatement)
 	if err != nil {
@@ -32,11 +42,11 @@ func (c *CartItemRepository) FetchCartItems() ([]CartItem, error) {
 	for rows.Next() {
 		var cartItem CartItem
 		err := rows.Scan(
+			&cartItem.ID,
 			&cartItem.ProductID,
-			&cartItem.ProductName,
 			&cartItem.Quantity,
+			&cartItem.ProductName,
 			&cartItem.Price,
-			&cartItem.Category,
 		)
 		if err != nil {
 			return nil, err
@@ -45,6 +55,8 @@ func (c *CartItemRepository) FetchCartItems() ([]CartItem, error) {
 	}
 
 	return cartItems, nil
+
+	// return []CartItem{}, nil // TODO: replace this
 }
 
 func (c *CartItemRepository) FetchCartByProductID(productID int64) (CartItem, error) {
@@ -52,79 +64,99 @@ func (c *CartItemRepository) FetchCartByProductID(productID int64) (CartItem, er
 	var sqlStatement string
 	//TODO : you must fetch the cart by product id
 	//HINT : you can use the where statement
-
-	sqlStatement = `SELECT * FROM cart_items WHERE product_id = ?`
+	sqlStatement = `
+	SELECT
+		id, 
+		quantity
+	FROM cart_items
+	WHERE product_id = ?`
 
 	row := c.db.QueryRow(sqlStatement, productID)
-	err := row.Scan(&cartItem.ProductID, &cartItem.ProductName, &cartItem.Quantity, &cartItem.Price, &cartItem.Category)
-	if err != nil {
-		return CartItem{}, err
+	if err := row.Scan(&cartItem.ID, &cartItem.Quantity); err != nil {
+		return cartItem, err
 	}
+
 	return cartItem, nil
+
+	// return CartItem{}, nil // TODO: replace this
 }
 
 func (c *CartItemRepository) InsertCartItem(cartItem CartItem) error {
 	// TODO: you must insert the cart item
-	sqlStmt := `INSERT INTO
-	cart_items (product_id, quantity, price, ProductName, Category)
-	VALUES 
-	(?, ?, ?,?, ?)`
-	_, err := c.db.Exec(sqlStmt, cartItem.Quantity, cartItem.Price, cartItem.Category, cartItem.ProductName)
+	sqlStatement := `
+	INSERT INTO cart_items (
+		product_id,
+		quantity
+	) VALUES (?, ?)`
+
+	_, err := c.db.Exec(sqlStatement, cartItem.ProductID, cartItem.Quantity)
 	if err != nil {
 		return err
 	}
-	return nil // TODO: replace this
+
+	return nil
+	// return nil // TODO: replace this
 }
 
 func (c *CartItemRepository) IncrementCartItemQuantity(cartItem CartItem) error {
 	//TODO : you must update the quantity of the cart item
-	//HINT : you can use the update statement
+	sqlStatement := `
+	UPDATE cart_items
+	SET 
+	quantity = quantity+?
+	WHERE id = ?`
 
-	sqlStmt := `UPDATE cart_items SET quantity + ? WHERE product_id = ?`
-
-	_, err := c.db.Exec(sqlStmt, cartItem.Quantity, cartItem.ProductID)
+	_, err := c.db.Exec(sqlStatement, cartItem.Quantity, cartItem.ID)
 	if err != nil {
 		return err
 	}
 
-	return nil // TODO: replace this
+	return nil
+
+	// return nil // TODO: replace this
 }
 
 func (c *CartItemRepository) ResetCartItems() error {
 	//TODO : you must reset the cart items
 	//HINT : you can use the delete statement
+	sqlStatement := `
+	DELETE FROM cart_items WHERE id = ?`
 
-	sqlStmt := `DELETE FROM cart_items`
-
-	_, err := c.db.Exec(sqlStmt)
+	_, err := c.db.Exec(sqlStatement)
 	if err != nil {
 		return err
 	}
 
-	return nil // TODO: replace this
+	return nil
+
+	// return nil // TODO: replace this
 }
 
 func (c *CartItemRepository) TotalPrice() (int, error) {
 	var sqlStatement string
 	//TODO : you must calculate the total price of the cart items
 	//HINT : you can use the sum statement
-
-	sqlStatement = `SELECT SUM(p.price * c.quantity ) FROM cart_items c LEFT JOIN products p ON c.product_id = products.id`
-
-	rows, err := c.db.Query(sqlStatement)
+	sqlStatement = `
+	SELECT SUM(p.price * c.quantity) 
+	FROM cart_items c
+	LEFT JOIN products p
+	ON c.product_id = p.id
+	`
+	row, err := c.db.Query(sqlStatement)
 	if err != nil {
 		return 0, err
 	}
-	defer rows.Close()
+
+	defer row.Close()
 
 	var totalPrice int
-	for rows.Next() {
-		var price int
-		err := rows.Scan(&price)
+	for row.Next() {
+		err := row.Scan(&totalPrice)
 		if err != nil {
 			return 0, err
 		}
-		totalPrice += price
 	}
+
 	return totalPrice, nil
+	// return 0, nil // TODO: replace this
 }
